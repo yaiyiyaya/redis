@@ -612,6 +612,15 @@ typedef struct RedisModuleDigest {
 #define LRU_CLOCK_RESOLUTION 1000 /* LRU clock resolution in ms */
 
 #define OBJ_SHARED_REFCOUNT INT_MAX
+/*
+    Redis 的 key 是 String 类型，但 value 可以是很多类型（String/List/Hash/Set/ZSet等），所以 Redis 要想存储多种数据类型，就要设计一个通用的对象进行封装； 这个对象就是 redisObject
+    作用：
+        1. 为多种数据类型提供统一的表示方式
+        2. 同一种数据类型，底层可以对应不同的实现， 节省内存
+        3. 支持对象共享和引用计数， 共享对象存储一份，可多次使用， 节省内存
+    ------------------------
+    redisObject 更像是连接 【上层数据类型】 和 【底层数据结构】 之间的桥梁
+*/
 // 位域定义方法：  使用变量后使用冒号和数值的定义方法；  作用： 有效的节省内存开销
 typedef struct redisObject {
     unsigned type:4;  // redisObject 的数据类型， 4个bit; 包括 String、 List、 Hash等
