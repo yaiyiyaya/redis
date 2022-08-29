@@ -396,10 +396,13 @@ unsigned int zipStoreEntryEncoding(unsigned char *p, unsigned char encoding, uns
  * uses the larger encoding (required in __ziplistCascadeUpdate). */
 int zipStorePrevEntryLengthLarge(unsigned char *p, unsigned int len) {
     if (p != NULL) {
+        // 将prevlen的第1字节设置为ZIP_BIG_PREVLEN，即254
         p[0] = ZIP_BIG_PREVLEN;
+        // 将前一个列表项的长度值拷贝至prevlen的第2至第5字节，其中sizeof(len)的值为4
         memcpy(p+1,&len,sizeof(len));
         memrev32ifbe(p+1);
     }
+    // 返回 prevlen 的大小，为5字节
     return 1+sizeof(len);
 }
 
@@ -409,10 +412,13 @@ unsigned int zipStorePrevEntryLength(unsigned char *p, unsigned int len) {
     if (p == NULL) {
         return (len < ZIP_BIG_PREVLEN) ? 1 : sizeof(len)+1;
     } else {
+        // 判断 prevlen 的长度是否小于 ZIP_BIG_PREVLEN、 ZIP_BIG_PREVLEN等于 254
         if (len < ZIP_BIG_PREVLEN) {
             p[0] = len;
+            // 返回 1 字节
             return 1;
         } else {
+            //否则，调用zipStorePrevEntryLengthLarge进行编码
             return zipStorePrevEntryLengthLarge(p,len);
         }
     }

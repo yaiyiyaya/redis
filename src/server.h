@@ -612,14 +612,15 @@ typedef struct RedisModuleDigest {
 #define LRU_CLOCK_RESOLUTION 1000 /* LRU clock resolution in ms */
 
 #define OBJ_SHARED_REFCOUNT INT_MAX
+// 位域定义方法：  使用变量后使用冒号和数值的定义方法；  作用： 有效的节省内存开销
 typedef struct redisObject {
-    unsigned type:4;
-    unsigned encoding:4;
-    unsigned lru:LRU_BITS; /* LRU time (relative to global lru_clock) or
+    unsigned type:4;  // redisObject 的数据类型， 4个bit; 包括 String、 List、 Hash等
+    unsigned encoding:4;  // redisObject 的编码类型。 是 Redis 内部实现各种数据类型所用的数据结构， 4个bits
+    unsigned lru:LRU_BITS; /* LRU time (relative to global lru_clock) or    //  redisObject 的 LRU 时间， LRU_BITS为24个bits
                             * LFU data (least significant 8 bits frequency
                             * and most significant 16 bits access time). */
-    int refcount;
-    void *ptr;
+    int refcount;  // redisObject的引用计数，4个字节
+    void *ptr;     // 指向值的指针，8个字节
 } robj;
 
 /* Macro used to initialize a Redis object allocated on the stack.
