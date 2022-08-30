@@ -42,16 +42,16 @@
  * attempted_compress: 1 bit, boolean, used for verifying during testing.
  * extra: 10 bits, free for future use; pads out the remainder of 32 bits */
 typedef struct quicklistNode {
-    struct quicklistNode *prev;
-    struct quicklistNode *next;
-    unsigned char *zl;
-    unsigned int sz;             /* ziplist size in bytes */
-    unsigned int count : 16;     /* count of items in ziplist */
-    unsigned int encoding : 2;   /* RAW==1 or LZF==2 */
-    unsigned int container : 2;  /* NONE==1 or ZIPLIST==2 */
-    unsigned int recompress : 1; /* was this node previous compressed? */
-    unsigned int attempted_compress : 1; /* node can't compress; too small */
-    unsigned int extra : 10; /* more bits to steal for future usage */
+    struct quicklistNode *prev;  // 前序节点指针
+    struct quicklistNode *next;  // 后续节点指针
+    unsigned char *zl;      // 指向 ziplist
+    unsigned int sz;             /* ziplist size in bytes */  //  ziplist 字节大小
+    unsigned int count : 16;     /* count of items in ziplist */  // ziplist 元素个数
+    unsigned int encoding : 2;   /* RAW==1 or LZF==2 */     // 编码格式， 原生字节数组或压缩存储
+    unsigned int container : 2;  /* NONE==1 or ZIPLIST==2 */    // 存储方式
+    unsigned int recompress : 1; /* was this node previous compressed? */  、// 是否压缩
+    unsigned int attempted_compress : 1; /* node can't compress; too small */ // 数据能否被压缩
+    unsigned int extra : 10; /* more bits to steal for future usage */ // 预留的big 位
 } quicklistNode;
 
 /* quicklistLZF is a 4+N byte struct holding 'sz' followed by 'compressed'.
@@ -71,10 +71,10 @@ typedef struct quicklistLZF {
  *                of quicklistNodes to leave uncompressed at ends of quicklist.
  * 'fill' is the user-requested (or default) fill factor. */
 typedef struct quicklist {
-    quicklistNode *head;
-    quicklistNode *tail;
-    unsigned long count;        /* total count of all entries in all ziplists */
-    unsigned long len;          /* number of quicklistNodes */
+    quicklistNode *head;   // quicklist 链表头
+    quicklistNode *tail;    // quicklist 链表尾
+    unsigned long count;        /* total count of all entries in all ziplists */  // 所有ziplist中的总元素个数
+    unsigned long len;          /* number of quicklistNodes */  // quicklistNode 的个数
     int fill : 16;              /* fill factor for individual nodes */
     unsigned int compress : 16; /* depth of end nodes not to compress;0=off */
 } quicklist;

@@ -593,6 +593,7 @@ unsigned char *ziplistNew(void) {
 
 /* Resize the ziplist. */
 unsigned char *ziplistResize(unsigned char *zl, unsigned int len) {
+    // 对zl进行重新内存空间分配，重新分配的大小是len
     zl = zrealloc(zl,len);
     ZIPLIST_BYTES(zl) = intrev32ifbe(len);
     zl[len-1] = ZIP_END;
@@ -768,6 +769,7 @@ unsigned char *__ziplistInsert(unsigned char *zl, unsigned char *p, unsigned cha
     }
 
     /* See if the entry can be encoded */
+    // 判断插入元素是否为整数
     if (zipTryEncoding(s,slen,&value,&encoding)) {
         /* 'encoding' is set to the appropriate integer encoding */
         reqlen = zipIntSize(encoding);
