@@ -204,10 +204,14 @@ int lpStringToInt64(const char *s, unsigned long slen, int64_t *value) {
 /* Create a new, empty listpack.
  * On success the new listpack is returned, otherwise an error is returned. */
 unsigned char *lpNew(void) {
+    // 创建 listpack ， 分配内存大小为 LP_HDR_SIZE+1 ； LP_HDR_SIZE = 6  其中 4 个字节是记录 listpack 的总字节数，2 个字节是记录 listpack 的元素数量。
     unsigned char *lp = lp_malloc(LP_HDR_SIZE+1);
     if (lp == NULL) return NULL;
+    // 设置 listpack 大小
     lpSetTotalBytes(lp,LP_HDR_SIZE+1);
+    // 设置 listpack 元素个数。 初始值为 0 
     lpSetNumElements(lp,0);
+    // 设置listpack的结尾标识为LP_EOF，值为255  LP_EOF =  0xFF
     lp[LP_HDR_SIZE] = LP_EOF;
     return lp;
 }
@@ -294,23 +298,24 @@ int lpEncodeGetType(unsigned char *ele, uint32_t size, unsigned char *intenc, ui
  * 1 to 5. If 'buf' is NULL the function just returns the number of bytes
  * needed in order to encode the backlen. */
 unsigned long lpEncodeBacklen(unsigned char *buf, uint64_t l) {
+    // //编码类型和实际数据的总长度小于等于127，entry-len长度为1字节
     if (l <= 127) {
         if (buf) buf[0] = l;
         return 1;
-    } else if (l < 16383) {
+    } else if (l < 16383) {    // 编码类型和实际数据的总长度大于127但小于16383，entry-len长度为2字节
         if (buf) {
             buf[0] = l>>7;
             buf[1] = (l&127)|128;
         }
         return 2;
-    } else if (l < 2097151) {
+    } else if (l < 2097151) {  // 编码类型和实际数据的总长度大于16383但小于2097151，entry-len长度为3字节
         if (buf) {
             buf[0] = l>>14;
             buf[1] = ((l>>7)&127)|128;
             buf[2] = (l&127)|128;
         }
         return 3;
-    } else if (l < 268435455) {
+    } else if (l < 268435455) {  // 编码类型和实际数据的总长度大于2097151但小于268435455，entry-len长度为4字节
         if (buf) {
             buf[0] = l>>21;
             buf[1] = ((l>>14)&127)|128;
@@ -318,7 +323,7 @@ unsigned long lpEncodeBacklen(unsigned char *buf, uint64_t l) {
             buf[3] = (l&127)|128;
         }
         return 4;
-    } else {
+    } else {  // 否则，entry-len长度为5字节
         if (buf) {
             buf[0] = l>>28;
             buf[1] = ((l>>21)&127)|128;
@@ -388,8 +393,8 @@ uint32_t lpCurrentEncodedSize(unsigned char *p) {
  * listpack, however, while this function is used to implement lpNext(),
  * it does not return NULL when the EOF element is encountered. */
 unsigned char *lpSkip(unsigned char *p) {
-    unsigned long entrylen = lpCurrentEncodedSize(p);
-    entrylen += lpEncodeBacklen(NULL,entrylen);
+    unsigned long entrylen = lpCurrentEncodedSize(p);  // 根据当前列表项第 1 个字节的取值，来计算当前项的编码类型，并根据编码类型，计算当前项编码类型和实际数据的总长度
+    entrylen += lpEncodeBacklen(NULL,entrylen); // 根据编码类型和实际数据的长度之和，进一步计算列表项最后一部分 entry-len 本身的长度。
     p += entrylen;
     return p;
 }
@@ -399,7 +404,7 @@ unsigned char *lpSkip(unsigned char *p) {
  * already pointed to the last element of the listpack. */
 unsigned char *lpNext(unsigned char *lp, unsigned char *p) {
     ((void) lp); /* lp is not used for now. However lpPrev() uses it. */
-    p = lpSkip(p);
+    p = lpSkip(p);  //调用lpSkip函数，偏移指针指向下一个列表项
     if (p[0] == LP_EOF) return NULL;
     return p;
 }
@@ -418,8 +423,8 @@ unsigned char *lpPrev(unsigned char *lp, unsigned char *p) {
 /* Return a pointer to the first element of the listpack, or NULL if the
  * listpack has no elements. */
 unsigned char *lpFirst(unsigned char *lp) {
-    lp += LP_HDR_SIZE; /* Skip the header. */
-    if (lp[0] == LP_EOF) return NULL;
+    lp += LP_HDR_SIZE; /* Skip the header. */ //跳过listpack头部6个字节
+    if (lp[0] == LP_EOF) return NULL; //如果已经是listpack的末尾结束字节，则返回NULL
     return lp;
 }
 
