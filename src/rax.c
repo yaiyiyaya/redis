@@ -199,6 +199,7 @@ raxNode *raxNewNode(size_t children, int datafield) {
 /* Allocate a new rax and return its pointer. On out of memory the function
  * returns NULL. */
 rax *raxNew(void) {
+    // 分配一个新的 rax 结构体空间
     rax *rax = rax_malloc(sizeof(*rax));
     if (rax == NULL) return NULL;
     rax->numele = 0;

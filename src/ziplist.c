@@ -486,7 +486,7 @@ unsigned int zipRawEntryLength(unsigned char *p) {
 int zipTryEncoding(unsigned char *entry, unsigned int entrylen, long long *v, unsigned char *encoding) {
     long long value;
 
-    if (entrylen >= 32 || entrylen == 0) return 0;
+    if (entrylen >= 32 || entrylen == 0) return 0;  // entrylen 是指的整数的长度，不是二进制的长度，所以这里判断的是这个整数的长度是否超过32位，如果超过了就用str的形式编码
     if (string2ll((char*)entry,entrylen,&value)) {
         /* Great, the string can be encoded. Check what's the smallest
          * of our encoding types that can hold this value. */
