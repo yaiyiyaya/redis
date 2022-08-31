@@ -202,13 +202,19 @@ void loadServerConfigFromString(char *config) {
         sdstolower(argv[0]);
 
         /* Execute config directives */
+        // 参数名匹配， 检查参数是否为 "timeout" 
         if (!strcasecmp(argv[0],"timeout") && argc == 2) {
+            // 设置 server 的 maxideletime 参数
             server.maxidletime = atoi(argv[1]);
+            // 判断是否 小于 0 ， 小于 0 报错
             if (server.maxidletime < 0) {
                 err = "Invalid timeout value"; goto loaderr;
             }
+        // 参数名匹配， 检查参数是否为 "tcp-keepalive"
         } else if (!strcasecmp(argv[0],"tcp-keepalive") && argc == 2) {
+            // 设置 server 的 tcpkeepalive 参数
             server.tcpkeepalive = atoi(argv[1]);
+            // 判断是否 小于 0 ， 小于 0 报错
             if (server.tcpkeepalive < 0) {
                 err = "Invalid tcp-keepalive value"; goto loaderr;
             }
