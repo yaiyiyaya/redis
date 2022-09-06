@@ -73,18 +73,22 @@ static void aeApiFree(aeEventLoop *eventLoop) {
 }
 
 static int aeApiAddEvent(aeEventLoop *eventLoop, int fd, int mask) {
+    // 从 eventLoop 结构体中获取 aeApiState 变量， 里面保存了 epoll 实例
     aeApiState *state = eventLoop->apidata;
-    struct epoll_event ee = {0}; /* avoid valgrind warning */
+    struct epoll_event ee = {0}; /* avoid valgrind warning */  // 创建 epoll_event 类型变量
     /* If the fd was already monitored for some event, we need a MOD
      * operation. Otherwise we need an ADD operation. */
+    // 如果文件描述符 fd 对应的 IO 事件已存在，则操作类型为修改， 否则添加
     int op = eventLoop->events[fd].mask == AE_NONE ?
             EPOLL_CTL_ADD : EPOLL_CTL_MOD;
 
     ee.events = 0;
     mask |= eventLoop->events[fd].mask; /* Merge old events */
+    // 将可读或可写 IO 事件类型转换为 epoll 监听的类型  EPOLLIN 或 EPOLLOUT
     if (mask & AE_READABLE) ee.events |= EPOLLIN;
     if (mask & AE_WRITABLE) ee.events |= EPOLLOUT;
-    ee.data.fd = fd;
+    ee.data.fd = fd; // 将要监听的文件描述符赋值给 ee
+    // 调用epoll_ctl实际创建监听事件
     if (epoll_ctl(state->epfd,op,fd,&ee) == -1) return -1;
     return 0;
 }

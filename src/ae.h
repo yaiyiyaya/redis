@@ -69,22 +69,22 @@ typedef void aeBeforeSleepProc(struct aeEventLoop *eventLoop);
 
 /* File event structure */
 typedef struct aeFileEvent {
-    int mask; /* one of AE_(READABLE|WRITABLE|BARRIER) */
-    aeFileProc *rfileProc;
-    aeFileProc *wfileProc;
-    void *clientData;
+    int mask; /* one of AE_(READABLE|WRITABLE|BARRIER) */ // 掩码标记，包括可读事件、可写事件和屏障事件
+    aeFileProc *rfileProc;    // 处理可读事件的回调函数
+    aeFileProc *wfileProc;   // 处理可写事件的回调函数
+    void *clientData;        // 私有数据
 } aeFileEvent;
 
 /* Time event structure */
 typedef struct aeTimeEvent {
-    long long id; /* time event identifier. */
-    long when_sec; /* seconds */
-    long when_ms; /* milliseconds */
-    aeTimeProc *timeProc;
-    aeEventFinalizerProc *finalizerProc;
-    void *clientData;
-    struct aeTimeEvent *prev;
-    struct aeTimeEvent *next;
+    long long id; /* time event identifier. */  //时间事件ID 
+    long when_sec; /* seconds */ //事件到达的秒级时间戳
+    long when_ms; /* milliseconds */ //事件到达的毫秒级时间戳
+    aeTimeProc *timeProc;   //时间事件触发后的处理函数
+    aeEventFinalizerProc *finalizerProc;     //事件结束后的处理函数
+    void *clientData;    //事件相关的私有数据
+    struct aeTimeEvent *prev;    //时间事件链表的前向指针
+    struct aeTimeEvent *next;    //时间事件链表的后向指针
 } aeTimeEvent;
 
 /* A fired event */
